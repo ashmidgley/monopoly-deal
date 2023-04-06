@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Monopoly Deal™.js</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+  </head>
+  <body>
+    <div class="row-center">
+      <div class="column-center">
+        <h1>Monopoly Deal™.js</h1>
+        <div id="start-section">
+          <p>Ready to play?</p>
+          <button id="start-button">Start</button>
+        </div>
+        <div id="setup-section" class="hide">
+          <p>How many players will there be? (min 2, max 5)</p>
+          <div class="column-center">
+            <input
+              id="player-count"
+              type="number"
+              min="2"
+              max="5"
+              placeholder="Enter player count here..."
+            />
+            <div id="players" class="column-center" />
+            <button id="setup-button">Setup</button>
+          </div>
+        </div>
+      </div>
+      <div id="game-section" class="hide">
+        <p id="action-text"></p>
+        <p id="drawn-cards-text"></p>
+        <p id="hand-text"></p>
+        <p id="properties-text"></p>
+        <div class="column-center">
+          <div class="column-center">
+            <label>Card to play:</label>
+            <input
+              id="turn-input"
+              type="number"
+              placeholder="Enter card number here..."
+            />
+          </div>
+          <button id="turn-submit-button">Play card</button>
+        </div>
+        <button id="finish-turn-button">Finish turn</button>
+      </div>
+    </div>
+    <script src="js/bundle.js"></script>
+  </body>
+</html>

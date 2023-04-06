@@ -1,0 +1,22 @@
+body {
+  min-height: 100vh;
+}
+
+.row-center {
+  display: flex;
+  justify-content: center;
+}
+
+.column-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hide {
+  display: none;
+}
+
+.show {
+  display: block;
+}
