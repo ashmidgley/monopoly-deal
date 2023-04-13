@@ -10,24 +10,12 @@ class Player {
     this.hand.push(...cards);
   }
 
-  presentHand() {
-    return this.hand
-      .map((card, index) => `(${index + 1}) ${card.present()}`)
-      .join("\n");
-  }
-
-  presentProperties() {
-    if (this.properties.length === 0) {
-      return "No properties yet...";
+  playCard(name) {
+    const index = this.hand.findIndex((card) => card.name === name);
+    if (index === -1) {
+      throw new Error(`Card ${name} not found in hand`);
     }
 
-    return this.properties
-      .map((property, index) => property.present())
-      .sort((property) => property.color)
-      .join("\n");
-  }
-
-  playCard(index) {
     const card = this.hand.splice(index, 1)[0];
     this.properties.push(card);
     return card;

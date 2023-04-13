@@ -2,13 +2,8 @@ const Card = require("./Card");
 
 class Property extends Card {
   constructor(value, color, name) {
-    super(value);
+    super(value, name);
     this.color = color;
-    this.name = name;
-  }
-
-  present() {
-    return `${this.name} (${this.color})`;
   }
 }
 

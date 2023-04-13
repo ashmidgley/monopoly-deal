@@ -1,7 +1,7 @@
 {
   "name": "monopoly-deal",
   "version": "1.0.0",
-  "description": "Node implementation of the popular card game.",
+  "description": "Vanilla JS implementation of the popular card game.",
   "main": "index.js",
   "scripts": {
     "start": "npm-run-all clean build run",

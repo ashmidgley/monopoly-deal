@@ -1,9 +1,16 @@
-const createEnum = (values) => {
+function createEnum(values) {
   const enumObject = {};
   for (const val of values) {
     enumObject[val] = val;
   }
   return Object.freeze(enumObject);
-};
+}
 
-exports.createEnum = createEnum;
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(() => resolve(), ms));
+}
+
+module.exports = {
+  createEnum,
+  delay,
+};

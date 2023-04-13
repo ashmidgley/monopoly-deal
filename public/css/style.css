@@ -1,5 +1,72 @@
 body {
-  min-height: 100vh;
+  margin: 0;
+  font-family: "Courier New", monospace;
+}
+
+nav {
+  position: fixed;
+  width: 100%;
+  z-index: 50;
+  backdrop-filter: blur(9px);
+}
+
+button {
+  border-radius: 12px;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 20px;
+  background: #d93434;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+}
+
+button:hover {
+  cursor: pointer;
+  background: #bd2828;
+  text-decoration: none;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+h2 {
+  font-size: 32px;
+}
+
+h3 {
+  font-size: 24px;
+}
+
+input {
+  width: 100%;
+  min-width: 300px;
+  font-size: 18px;
+  font-family: inherit;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+#home-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+#home-link:hover {
+  text-decoration: line-through;
+}
+
+.container {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .row-center {
@@ -11,6 +78,15 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+}
+
+.gap-12 {
+  gap: 12px;
+}
+
+.mt-32 {
+  margin-top: 32px;
 }
 
 .hide {
@@ -19,4 +95,14 @@ body {
 
 .show {
   display: block;
+}
+
+.invalid {
+  border: 1px solid red;
+}
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }

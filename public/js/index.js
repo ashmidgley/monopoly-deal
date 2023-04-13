@@ -1,114 +1,28 @@
+"use strict";
+
 const Deck = require("./Deck");
 const Player = require("./Player");
-const Property = require("./Property");
 const { colors } = require("./enums");
+const { delay } = require("./utils");
+
+let deck = new Deck();
 
 let rentTable = {};
-let deck = new Deck();
+rentTable[colors.blue] = [3, 8];
+rentTable[colors.brown] = [1, 2];
+rentTable[colors.gray] = [1, 2];
+rentTable[colors.yellow] = [2, 4, 6];
+rentTable[colors.green] = [2, 4, 7];
+rentTable[colors.lightBlue] = [1, 2, 3];
+rentTable[colors.purple] = [1, 2, 4];
+rentTable[colors.red] = [2, 3, 6];
+rentTable[colors.orange] = [1, 3, 5];
+rentTable[colors.black] = [1, 2, 3, 4];
+
 let currentPlayer = 0;
 let players = [];
 let playerInputs = [];
 let turnCount = 0;
-
-function initializeGame() {
-  const blueCards = [
-    new Property(4, colors.blue, "Mayfair"),
-    new Property(4, colors.blue, "Park Lane"),
-  ];
-
-  const yellowCards = [
-    new Property(3, colors.yellow, "Piccadilly"),
-    new Property(3, colors.yellow, "Coventry Street"),
-    new Property(3, colors.yellow, "Leicester Square"),
-  ];
-
-  const brownCards = [
-    new Property(1, colors.brown, "Old Kent Road"),
-    new Property(1, colors.brown, "Whitechapel Road"),
-  ];
-
-  const greenCards = [
-    new Property(4, colors.green, "Bond Street"),
-    new Property(4, colors.green, "Oxford Street"),
-    new Property(4, colors.green, "Regent Street"),
-  ];
-
-  const lightBlueCards = [
-    new Property(1, colors.lightBlue, "Euston Road"),
-    new Property(1, colors.lightBlue, "Pentonville Road"),
-    new Property(1, colors.lightBlue, "The Angel/Islington"),
-  ];
-
-  const blackCards = [
-    new Property(2, colors.black, "King's Cross Station"),
-    new Property(2, colors.black, "Marylbone Station"),
-    new Property(2, colors.black, "Liverpool St. Station"),
-    new Property(2, colors.black, "Fenchurch St. Station"),
-  ];
-
-  const redCards = [
-    new Property(3, colors.red, "Fleet Street"),
-    new Property(3, colors.red, "Trafalgar Square"),
-    new Property(3, colors.red, "Strand"),
-  ];
-
-  const purpleCards = [
-    new Property(2, colors.purple, "Whitehall"),
-    new Property(2, colors.purple, "Pall Mall"),
-    new Property(2, colors.purple, "Northumberland Avenue"),
-  ];
-
-  const orangeCards = [
-    new Property(2, colors.orange, "Vine Street"),
-    new Property(2, colors.orange, "Bow Street"),
-    new Property(2, colors.orange, "Marlborough Street"),
-  ];
-
-  const grayCards = [
-    new Property(2, colors.gray, "Water Works"),
-    new Property(2, colors.gray, "Electric Company"),
-  ];
-
-  rentTable[colors.blue] = [3, 8];
-  rentTable[colors.brown] = [1, 2];
-  rentTable[colors.gray] = [1, 2];
-  rentTable[colors.yellow] = [2, 4, 6];
-  rentTable[colors.green] = [2, 4, 7];
-  rentTable[colors.lightBlue] = [1, 2, 3];
-  rentTable[colors.purple] = [1, 2, 4];
-  rentTable[colors.red] = [2, 3, 6];
-  rentTable[colors.orange] = [1, 3, 5];
-  rentTable[colors.black] = [1, 2, 3, 4];
-
-  deck = new Deck([
-    ...blueCards,
-    ...yellowCards,
-    ...brownCards,
-    ...greenCards,
-    ...lightBlueCards,
-    ...blackCards,
-    ...redCards,
-    ...purpleCards,
-    ...orangeCards,
-    ...grayCards,
-  ]);
-}
-
-function renderTurn(player) {
-  document.getElementById(
-    "action-text"
-  ).innerText = `It's ${player.name}'s turn.`;
-
-  document.getElementById(
-    "hand-text"
-  ).innerText = `Your hand:\n${player.presentHand()}`;
-
-  document.getElementById(
-    "properties-text"
-  ).innerText = `Your properties:\n${player.presentProperties()}`;
-
-  document.getElementById("finish-turn-button").disabled = true;
-}
 
 const startButton = document.getElementById("start-button");
 startButton.addEventListener("click", () => {
@@ -119,8 +33,15 @@ startButton.addEventListener("click", () => {
 });
 
 const playerCount = document.getElementById("player-count");
-playerCount.addEventListener("input", (e) => {
+playerCount.addEventListener("input", () => {
   const count = playerCount.value;
+  if (count < 2 || count > 5) {
+    playerCount.classList.add("invalid");
+    return;
+  } else if (playerCount.classList.contains("invalid")) {
+    playerCount.classList.remove("invalid");
+  }
+
   playerInputs = [];
   for (let i = 0; i < count; i++) {
     const playerInput = document.createElement("input");
@@ -130,12 +51,93 @@ playerCount.addEventListener("input", (e) => {
     playerInputs.push(playerInput);
   }
 
-  document.getElementById("players").append(...playerInputs);
-  document.getElementById("setup-button").disabled = false;
+  document.getElementById("players").replaceChildren(...playerInputs);
+  document.getElementById("setup-button").classList.remove("hide");
 });
+
+function drawCards(player) {
+  if (deck.hasCards()) {
+    const drawnCards = deck.drawCards(2);
+    player.addToHand(drawnCards);
+    const images = drawnCards.map((card) => card.getImageElement());
+    document.getElementById("drawn-cards").replaceChildren(...images);
+  } else {
+    const text = document.createElement("p");
+    text.innerText = "No cards left in deck...";
+    document.getElementById("drawn-cards").replaceChildren(text);
+  }
+}
+
+function renderTurn(player) {
+  document.getElementById(
+    "action-text"
+  ).innerText = `It's ${player.name}'s turn.`;
+
+  document.getElementById("finish-turn-button").disabled = true;
+}
+
+function onHandImageClick(event) {
+  const name = event.target.alt;
+  const player = players[currentPlayer];
+  player.playCard(name);
+
+  turnCount++;
+  const turnOver = turnCount === 2 || player.hand.length === 0;
+  if (turnOver) {
+    document.getElementById("finish-turn-button").disabled = false;
+  }
+
+  renderHand(player.hand, turnOver);
+  renderProperties(player.properties);
+}
+
+function renderHand(hand, turnOver) {
+  if (hand.length === 0) {
+    const text = document.createElement("p");
+    text.innerText = "No cards left in hand...";
+    document.getElementById("hand").replaceChildren(text);
+  } else {
+    const handImages = hand.map((card) =>
+      card.getImageElement(onHandImageClick, turnOver)
+    );
+    document.getElementById("hand").replaceChildren(...handImages);
+  }
+}
+
+function renderProperties(properties) {
+  if (properties.length === 0) {
+    document.getElementById("properties-container").classList.add("hide");
+    return;
+  }
+
+  if (
+    document.getElementById("properties-container").classList.contains("hide")
+  ) {
+    document.getElementById("properties-container").classList.remove("hide");
+  }
+
+  const propertyImages = properties.map((card) => card.getImageElement());
+  document.getElementById("properties").replaceChildren(...propertyImages);
+}
 
 const setupButton = document.getElementById("setup-button");
 setupButton.addEventListener("click", () => {
+  let validPlayers = true;
+  for (let i = 0; i < playerInputs.length; i++) {
+    const value = playerInputs[i].value;
+    if (value === "") {
+      playerInputs[i].classList.add("invalid");
+      validPlayers = false;
+    } else if (playerInputs[i].classList.contains("invalid")) {
+      playerInputs[i].classList.remove("invalid");
+    }
+  }
+
+  if (!validPlayers) {
+    document.getElementById("players").replaceChildren(...playerInputs);
+    return;
+  }
+
   players = playerInputs.map((input) => new Player(input.value));
 
   const setupSection = document.getElementById("setup-section");
@@ -143,77 +145,39 @@ setupButton.addEventListener("click", () => {
   const gameSection = document.getElementById("game-section");
   gameSection.classList.remove("hide");
 
-  initializeGame();
+  deck.initialize();
 
   const actionText = document.getElementById("action-text");
   actionText.innerText = "Shuffling deck...";
   deck.shuffle();
 
-  setTimeout(() => {
+  delay(1000).then(() => {
     actionText.innerText = "Dealing cards...";
     for (var i = 0; i < players.length; i++) {
       players[i].addToHand(deck.drawCards(5));
     }
 
-    setTimeout(() => {
+    delay(1000).then(() => {
       actionText.innerText = "Starting game...";
-      setTimeout(() => {
+      delay(1000).then(() => {
         const player = players[currentPlayer];
-        const drawnCards = deck.drawCards(2);
-        player.addToHand(drawnCards);
-        document.getElementById(
-          "drawn-cards-text"
-        ).innerText = `You drew:\n${drawnCards[0].present()}\n${drawnCards[1].present()}`;
+        drawCards(player);
         renderTurn(player);
-      }, 1000);
-    }, 1000);
-  }, 1000);
-});
-
-const turnSubmitButton = document.getElementById("turn-submit-button");
-turnSubmitButton.addEventListener("click", () => {
-  const turnInput = document.getElementById("turn-input");
-  const cardNumber = turnInput.value;
-  const player = players[currentPlayer];
-  player.playCard(cardNumber - 1);
-
-  document.getElementById(
-    "hand-text"
-  ).innerText = `Your hand:\n${player.presentHand()}`;
-
-  document.getElementById(
-    "properties-text"
-  ).innerText = `Your properties:\n${player.presentProperties()}`;
-
-  turnInput.value = "";
-
-  turnCount++;
-  if (turnCount === 2) {
-    turnInput.disabled = true;
-    turnSubmitButton.disabled = true;
-    document.getElementById("finish-turn-button").disabled = false;
-  }
+        renderHand(player.hand);
+        renderProperties(player.properties);
+        document.getElementById("turn-content").classList.remove("hide");
+      });
+    });
+  });
 });
 
 const finishTurnButton = document.getElementById("finish-turn-button");
 finishTurnButton.addEventListener("click", () => {
   currentPlayer = (currentPlayer + 1) % players.length;
   const player = players[currentPlayer];
-
-  if (deck.hasCards()) {
-    const drawnCards = deck.drawCards(2);
-    player.addToHand(drawnCards);
-
-    document.getElementById(
-      "drawn-cards-text"
-    ).innerText = `You drew:\n${drawnCards[0].present()}\n${drawnCards[1].present()}`;
-  } else {
-    document.getElementById("drawn-cards-text").innerText =
-      "No cards left in deck...";
-  }
-
+  drawCards(player);
   renderTurn(player);
+  renderHand(player.hand);
+  renderProperties(player.properties);
   turnCount = 0;
-  document.getElementById("turn-input").disabled = false;
-  document.getElementById("turn-submit-button").disabled = false;
 });
