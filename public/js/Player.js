@@ -1,8 +1,10 @@
+const PropertyCollection = require("./PropertyCollection");
+
 class Player {
   constructor(name) {
     this.name = name;
     this.hand = [];
-    this.properties = [];
+    this.properties = new PropertyCollection();
     this.money = 0;
   }
 
@@ -17,8 +19,12 @@ class Player {
     }
 
     const card = this.hand.splice(index, 1)[0];
-    this.properties.push(card);
+    this.properties.add(card);
     return card;
+  }
+
+  hasWon() {
+    return this.properties.isComplete();
   }
 }
 

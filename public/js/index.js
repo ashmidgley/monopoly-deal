@@ -1,5 +1,7 @@
 "use strict";
 
+const { Fireworks } = require("fireworks-js");
+
 const Deck = require("./Deck");
 const Player = require("./Player");
 const { colors } = require("./enums");
@@ -83,12 +85,23 @@ function onHandImageClick(event) {
 
   turnCount++;
   const turnOver = turnCount === 2 || player.hand.length === 0;
-  if (turnOver) {
-    document.getElementById("finish-turn-button").disabled = false;
-  }
 
   renderHand(player.hand, turnOver);
   renderProperties(player.properties);
+
+  if (player.hasWon()) {
+    const container = document.getElementById("container");
+    const text = document.createElement("h2");
+    text.innerText = `${player.name} wins!`;
+    container.appendChild(text);
+    const fireworks = new Fireworks(container, {});
+    fireworks.start();
+    return;
+  }
+
+  if (turnOver) {
+    document.getElementById("finish-turn-button").disabled = false;
+  }
 }
 
 function renderHand(hand, turnOver) {
@@ -105,7 +118,8 @@ function renderHand(hand, turnOver) {
 }
 
 function renderProperties(properties) {
-  if (properties.length === 0) {
+  const propertySets = properties.getElements();
+  if (propertySets.length === 0) {
     document.getElementById("properties-container").classList.add("hide");
     return;
   }
@@ -116,8 +130,7 @@ function renderProperties(properties) {
     document.getElementById("properties-container").classList.remove("hide");
   }
 
-  const propertyImages = properties.map((card) => card.getImageElement());
-  document.getElementById("properties").replaceChildren(...propertyImages);
+  document.getElementById("properties").replaceChildren(...propertySets);
 }
 
 const setupButton = document.getElementById("setup-button");
